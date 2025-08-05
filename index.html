@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Math Calculator</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Math Solver & Grapher</title>
 
-  <!-- Nerdamer for equation solving -->
+  <!-- Nerdamer for solving algebra -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/nerdamer/1.1.9/nerdamer.core.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/nerdamer/1.1.9/Algebra.min.js"></script>
 
@@ -13,95 +15,107 @@
   <style>
     body {
       font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
       padding: 30px;
-      max-width: 700px;
-      margin: auto;
-      background-color: #f4f4f4;
+      margin: 0;
     }
 
-    h2, h3 {
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
       color: #333;
     }
 
     input, button {
-      font-size: 18px;
-      padding: 8px;
-      margin: 10px 0;
       width: 100%;
-      max-width: 100%;
+      font-size: 16px;
+      padding: 10px;
+      margin-top: 10px;
       box-sizing: border-box;
     }
 
     button {
-      cursor: pointer;
       background-color: #007BFF;
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 5px;
     }
 
     button:hover {
       background-color: #0056b3;
     }
 
-    #equation-graph, #custom-graph {
+    .graph-box {
       width: 100%;
       height: 400px;
-      margin-top: 10px;
       border: 1px solid #ccc;
+      margin-top: 15px;
+      border-radius: 5px;
     }
 
     .section {
-      margin-bottom: 40px;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-top: 40px;
     }
   </style>
 </head>
 <body>
 
-  <div class="section">
-    <h2>Algebra Solver</h2>
+  <div class="container">
+    <h2>🧮 Algebra Equation Solver</h2>
     <input id="equation" placeholder="Enter equation (e.g. 2x + 3 = 7)">
     <button onclick="solveEquation()">Solve</button>
-    <p><strong>Solution:</strong> <span id="output"></span></p>
+    <p><strong>Solution:</strong> <span id="output">—</span></p>
 
-    <h3>Graph of Equation</h3>
-    <div id="equation-graph"></div>
-  </div>
+    <h3>📈 Graph of Equation</h3>
+    <div id="equation-graph" class="graph-box"></div>
 
-  <div class="section">
-    <h2>Graph Any Expression</h2>
-    <input id="graph-input" placeholder="Enter expression (e.g. y = sin(x) or x^2 + 3)">
-    <button onclick="graphCustom()">Graph It</button>
-    <div id="custom-graph"></div>
+    <div class="section">
+      <h2>📊 Graph Any Expression</h2>
+      <input id="graph-input" placeholder="Enter expression (e.g. y = sin(x) or x^2 + 3)">
+      <button onclick="graphCustom()">Graph It</button>
+      <div id="custom-graph" class="graph-box"></div>
+    </div>
   </div>
 
   <script>
+    // Initialize Desmos calculators
     const graph1 = Desmos.GraphingCalculator(document.getElementById('equation-graph'));
     const graph2 = Desmos.GraphingCalculator(document.getElementById('custom-graph'));
 
     function solveEquation() {
       const eq = document.getElementById("equation").value;
+      const output = document.getElementById("output");
+
       const parts = eq.split("=");
       if (parts.length !== 2) {
-        document.getElementById("output").innerText = "Please enter a valid equation (like 2x + 3 = 7)";
+        output.innerText = "❌ Please enter a valid equation (like 2x + 3 = 7)";
         return;
       }
 
       try {
-        const solution = nerdamer.solve(parts[0] + '-(' + parts[1] + ')', 'x').toString();
-        document.getElementById("output").innerText = "x = " + solution;
+        const lhs = parts[0];
+        const rhs = parts[1];
+
+        const expr = `${lhs} - (${rhs})`; // Convert to "lhs - rhs = 0"
+        const solution = nerdamer.solve(expr, 'x').toString();
+
+        output.innerText = "x = " + solution;
 
         // Graph both sides of the equation
         graph1.setExpressions([
-          { id: 'left', latex: parts[0], color: Desmos.Colors.BLUE },
-          { id: 'right', latex: parts[1], color: Desmos.Colors.RED }
+          { id: 'left', latex: lhs, color: Desmos.Colors.BLUE },
+          { id: 'right', latex: rhs, color: Desmos.Colors.RED }
         ]);
+
       } catch (err) {
-        document.getElementById("output").innerText = "Error solving equation.";
+        output.innerText = "❌ Error solving equation.";
       }
     }
 
@@ -109,8 +123,8 @@
       const expr = document.getElementById("graph-input").value;
       try {
         graph2.setExpressions([{ id: 'custom', latex: expr }]);
-      } catch (e) {
-        alert("Invalid expression for graphing.");
+      } catch (err) {
+        alert("❌ Invalid expression for graphing.");
       }
     }
   </script>
