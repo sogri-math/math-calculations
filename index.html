@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Algebra Solver</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/nerdamer/1.1.9/nerdamer.core.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/nerdamer/1.1.9/Algebra.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    input, button {
+      font-size: 18px;
+      padding: 8px;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <h2>Algebra Solver</h2>
+  <input id="equation" placeholder="Enter equation (e.g. 2x+3=7)" size="40">
+  <br>
+  <button onclick="solveEquation()">Solve</button>
+  <p><strong>Solution:</strong> <span id="output"></span></p>
+
+  <script>
+    function solveEquation() {
+      const eq = document.getElementById("equation").value;
+      const parts = eq.split("=");
+      if (parts.length !== 2) {
+        document.getElementById("output").innerText = "Please enter a valid equation (like 2x+3=7)";
+        return;
+      }
+
+      try {
+        const solution = nerdamer.solve(parts[0] + '-(' + parts[1] + ')', 'x').toString();
+        document.getElementById("output").innerText = "x = " + solution;
+      } catch (err) {
+        document.getElementById("output").innerText = "Error solving equation.";
+      }
+    }
+  </script>
+</body>
+</html>
