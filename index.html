@@ -1,42 +1,91 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Algebra Solver</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/nerdamer/1.1.9/nerdamer.core.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/nerdamer/1.1.9/Algebra.min.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-    input, button {
-      font-size: 18px;
-      padding: 8px;
-      margin: 10px 0;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Math Solver & Grapher</title>
+  <!-- Bootstrap CSS for styling -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Nerdamer for algebra solving -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/nerdamer/1.1.11/nerdamer.core.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/nerdamer/1.1.11/Algebra.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/nerdamer/1.1.11/Solve.min.js"></script>
+  <!-- Desmos API -->
+  <script src="https://www.desmos.com/api/v1.6/calculator.js?apiKey=YOUR_API_KEY"></script>
 </head>
-<body>
-  <h2>Algebra Solver</h2>
-  <input id="equation" placeholder="Enter equation (e.g. 2x+3=7)" size="40">
-  <br>
-  <button onclick="solveEquation()">Solve</button>
-  <p><strong>Solution:</strong> <span id="output"></span></p>
+<body class="bg-light text-dark">
+  <div class="container py-5">
+    <h1 class="mb-4 text-center">🧮 Math Solver & Grapher</h1>
 
+    <!-- Equation Solver Section -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <h3 class="card-title">Solve an Equation</h3>
+        <input id="equation" class="form-control mb-2" placeholder="e.g. 2x + 3 = 7">
+        <button class="btn btn-primary mb-3" onclick="solveEquation()">Solve</button>
+        <p><strong>Solution:</strong> <span id="output"></span></p>
+        <div id="equation-graph" style="width: 100%; height: 400px;"></div>
+      </div>
+    </div>
+
+    <!-- Custom Grapher Section -->
+    <div class="card">
+      <div class="card-body">
+        <h3 class="card-title">Graph Any Expression</h3>
+        <input id="graph-input" class="form-control mb-2" placeholder="e.g. y = sin(x) or x^2 + 2x">
+        <button class="btn btn-secondary" onclick="graphCustom()">Graph It</button>
+        <div id="custom-graph" style="width: 100%; height: 400px; margin-top: 20px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Code -->
   <script>
+    // === Initialize Desmos Graphing Calculators ===
+    const graph1 = Desmos.GraphingCalculator(document.getElementById('equation-graph'));
+    const graph2 = Desmos.GraphingCalculator(document.getElementById('custom-graph'));
+
+    // === Solve Algebra Equation and Graph ===
     function solveEquation() {
-      const eq = document.getElementById("equation").value;
-      const parts = eq.split("=");
-      if (parts.length !== 2) {
-        document.getElementById("output").innerText = "Please enter a valid equation (like 2x+3=7)";
+      const input = document.getElementById("equation").value.trim();
+      const output = document.getElementById("output");
+
+      if (!input.includes("=")) {
+        output.innerText = "❌ Please enter a valid equation like '2x + 3 = 7'.";
+        return;
+      }
+
+      const [lhs, rhs] = input.split("=").map(side => side.trim());
+
+      try {
+        const solveExpr = `${lhs} - (${rhs})`;
+        const solution = nerdamer.solve(solveExpr, 'x').toString();
+        output.innerText = "x = " + solution;
+
+        graph1.setExpressions([
+          { id: 'lhs', latex: lhs, color: Desmos.Colors.BLUE },
+          { id: 'rhs', latex: rhs, color: Desmos.Colors.RED }
+        ]);
+      } catch (err) {
+        output.innerText = "❌ Error solving equation.";
+      }
+    }
+
+    // === Graph Arbitrary Expression ===
+    function graphCustom() {
+      const input = document.getElementById("graph-input").value.trim();
+
+      if (!input) {
+        alert("❌ Please enter an expression to graph.");
         return;
       }
 
       try {
-        const solution = nerdamer.solve(parts[0] + '-(' + parts[1] + ')', 'x').toString();
-        document.getElementById("output").innerText = "x = " + solution;
+        graph2.setExpressions([
+          { id: 'custom', latex: input, color: Desmos.Colors.PURPLE }
+        ]);
       } catch (err) {
-        document.getElementById("output").innerText = "Error solving equation.";
+        alert("❌ Invalid expression. Try something like 'y = sin(x)' or 'x^2 + 2x'");
       }
     }
   </script>
