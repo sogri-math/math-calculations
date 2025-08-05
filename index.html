@@ -1,45 +1,119 @@
 <!DOCTYPE html>
 <html>
-  <script src="https://www.desmos.com/api/v1.6/calculator.js?apiKey=default"></script>
 <head>
-  <title>Algebra Solver</title>
+  <title>Math Calculator</title>
+
+  <!-- Nerdamer for equation solving -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/nerdamer/1.1.9/nerdamer.core.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/nerdamer/1.1.9/Algebra.min.js"></script>
+
+  <!-- Desmos Graphing Calculator -->
+  <script src="https://www.desmos.com/api/v1.6/calculator.js?apiKey=default"></script>
+
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 20px;
+      padding: 30px;
+      max-width: 700px;
+      margin: auto;
+      background-color: #f4f4f4;
     }
+
+    h2, h3 {
+      color: #333;
+    }
+
     input, button {
       font-size: 18px;
       padding: 8px;
       margin: 10px 0;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    button {
+      cursor: pointer;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #equation-graph, #custom-graph {
+      width: 100%;
+      height: 400px;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+    }
+
+    .section {
+      margin-bottom: 40px;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
   </style>
 </head>
 <body>
-  <h2>Algebra Solver</h2>
-  <input id="equation" placeholder="Enter equation (e.g. 2x+3=7)" size="40">
-  <br>
-  <button onclick="solveEquation()">Solve</button>
-  <p><strong>Solution:</strong> <span id="output"></span></p>
+
+  <div class="section">
+    <h2>Algebra Solver</h2>
+    <input id="equation" placeholder="Enter equation (e.g. 2x + 3 = 7)">
+    <button onclick="solveEquation()">Solve</button>
+    <p><strong>Solution:</strong> <span id="output"></span></p>
+
+    <h3>Graph of Equation</h3>
+    <div id="equation-graph"></div>
+  </div>
+
+  <div class="section">
+    <h2>Graph Any Expression</h2>
+    <input id="graph-input" placeholder="Enter expression (e.g. y = sin(x) or x^2 + 3)">
+    <button onclick="graphCustom()">Graph It</button>
+    <div id="custom-graph"></div>
+  </div>
 
   <script>
+    const graph1 = Desmos.GraphingCalculator(document.getElementById('equation-graph'));
+    const graph2 = Desmos.GraphingCalculator(document.getElementById('custom-graph'));
+
     function solveEquation() {
       const eq = document.getElementById("equation").value;
       const parts = eq.split("=");
       if (parts.length !== 2) {
-        document.getElementById("output").innerText = "Please enter a valid equation (like 2x+3=7)";
+        document.getElementById("output").innerText = "Please enter a valid equation (like 2x + 3 = 7)";
         return;
       }
 
       try {
         const solution = nerdamer.solve(parts[0] + '-(' + parts[1] + ')', 'x').toString();
         document.getElementById("output").innerText = "x = " + solution;
+
+        // Graph both sides of the equation
+        graph1.setExpressions([
+          { id: 'left', latex: parts[0], color: Desmos.Colors.BLUE },
+          { id: 'right', latex: parts[1], color: Desmos.Colors.RED }
+        ]);
       } catch (err) {
         document.getElementById("output").innerText = "Error solving equation.";
       }
     }
+
+    function graphCustom() {
+      const expr = document.getElementById("graph-input").value;
+      try {
+        graph2.setExpressions([{ id: 'custom', latex: expr }]);
+      } catch (e) {
+        alert("Invalid expression for graphing.");
+      }
+    }
   </script>
+
 </body>
 </html>
